@@ -123,9 +123,11 @@ int main(int argc, char* argv[]){
         if(r2 <= 0) r2 = 0.99999999999*rl2;
     
         // Generate arrays over each star's face. 
-        Subs::Buffer1D<Lcurve::Point> star1, star2, disc, outer_edge, inner_edge, bspot, stream;
-        Lcurve::set_star_grid(model, Roche::PRIMARY, true, star1);
-        Lcurve::set_star_grid(model, Roche::SECONDARY, true, star2);
+        Subs::Buffer1D<Lcurve::Point> star1c, star1f, star2c, star2f, disc, outer_edge, inner_edge, bspot, stream;
+        Lcurve::set_star_grid(model, Roche::PRIMARY, false, star1c);
+        Lcurve::set_star_grid(model, Roche::PRIMARY, true, star1f);
+        Lcurve::set_star_grid(model, Roche::SECONDARY, false, star2c);
+        Lcurve::set_star_grid(model, Roche::SECONDARY, true, star2f);
 
         if(model.add_disc){
 
@@ -143,17 +145,17 @@ int main(int argc, char* argv[]){
             if(model.opaque){
 	    
                 // Apply eclipse by disc to star 1
-                for(int i=0; i<star1.size(); i++){
-                    eclipses =  Roche::disc_eclipse(model.iangle, rdisc1, rdisc2, model.beta_disc, model.height_disc, star1[i].posn);
+                for(int i=0; i<star1f.size(); i++){
+                    eclipses =  Roche::disc_eclipse(model.iangle, rdisc1, rdisc2, model.beta_disc, model.height_disc, star1f[i].posn);
                     for(size_t j=0; j<eclipses.size(); j++)
-                        star1[i].eclipse.push_back(eclipses[j]);
+                        star1f[i].eclipse.push_back(eclipses[j]);
                 }
 	    
                 // Apply eclipse by disc to star 2
-                for(int i=0; i<star2.size(); i++){
-                    eclipses =  Roche::disc_eclipse(model.iangle, rdisc1, rdisc2, model.beta_disc, model.height_disc, star2[i].posn);
+                for(int i=0; i<star2f.size(); i++){
+                    eclipses =  Roche::disc_eclipse(model.iangle, rdisc1, rdisc2, model.beta_disc, model.height_disc, star2f[i].posn);
                     for(size_t j=0; j<eclipses.size(); j++)
-                        star2[i].eclipse.push_back(eclipses[j]);  
+                        star2f[i].eclipse.push_back(eclipses[j]);  
                 }
             }
         }
@@ -249,11 +251,21 @@ int main(int argc, char* argv[]){
 
             // star 1
             cpgsci(4);
-            plot_visible(star1, earth, cofm, xsky, ysky, phase);
-
-            // star 2
+            double pnorm = phase - floor(phase);
+            if(pnorm <= model.phase1 || pnorm >= 1.-model.phase1){
+                plot_visible(star1f, earth, cofm, xsky, ysky, phase);
+            }
+            else{
+                plot_visible(star1c, earth, cofm, xsky, ysky, phase);
+            }
             cpgsci(2);
-            plot_visible(star2, earth, cofm, xsky, ysky, phase);
+            if(pnorm >= model.phase2 && pnorm <= 1.-model.phase2){
+               plot_visible(star2f, earth, cofm, xsky, ysky, phase);
+            }
+            else{
+                plot_visible(star2f, earth, cofm, xsky, ysky, phase);
+            }
+            // star 2
 
             if(model.add_disc){
 
