@@ -263,7 +263,7 @@ int main(int argc, char* argv[]){
                plot_visible(star2f, earth, cofm, xsky, ysky, phase);
             }
             else{
-                plot_visible(star2f, earth, cofm, xsky, ysky, phase);
+                plot_visible(star2c, earth, cofm, xsky, ysky, phase);
             }
             // star 2
 
